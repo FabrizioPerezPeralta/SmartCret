@@ -147,19 +147,68 @@ class SmartCretAssistant:
 
     def process_query(self, user_query: str) -> Dict[str, Any]:
         """Parses user query, invokes the matching engineering tool, and provides a factual explanation."""
-        query_lower = user_query.lower()
+        query_clean = user_query.strip()
+        query_lower = query_clean.lower()
         tool_results: List[ToolExecutionResult] = []
+        suggestions: List[str] = []
 
-        # Intent 1: Contingency / Price increase / Material shortage
-        if any(w in query_lower for w in ["sube", "precio", "escasez", "falta", "desabastecimiento", "contingencia", "imprevisto"]):
-            # Extract material and price change if present
+        # -------------------------------------------------------------
+        # 1. GREETINGS & CAPABILITIES DISCOVERY
+        # -------------------------------------------------------------
+        greeting_words = [
+            "hola", "buen dia", "buenos dias", "buenas tardes", "buenas noches",
+            "quien eres", "quién eres", "que haces", "qué haces", "que puedes hacer",
+            "qué puedes hacer", "ayuda", "capacidades", "presentacion", "presentate",
+            "menu", "opciones"
+        ]
+        is_greeting = any(query_lower.startswith(w) or query_lower == w for w in greeting_words)
+
+        if is_greeting and not any(w in query_lower for w in ["precio", "cemento", "mezcla", "mpa", "kg", "sube"]):
+            response_text = (
+                "### 👋 ¡Hola! Soy el Asistente Agéntico de Ingeniería de SmartCret\n\n"
+                "Estoy diseñado para apoyar a ingenieros residentes, laboratoristas y evaluadores en la toma de decisiones "
+                "técnicas y operativas sobre mezclas de concreto, aplicando **inteligencia artificial predictiva** y "
+                "**optimización multiobjetivo** bajo normativa **ACI (American Concrete Institute)**.\n\n"
+                "#### 🛠️ Mis 4 Herramientas Agénticas Principales:\n"
+                "1. **🧬 Predictor Conformal ML:** Evalúa resistencia (f'c ASTM C39) y revenimiento (Slump ASTM C143) "
+                "con bandas de incertidumbre al 90% de confianza.\n"
+                "2. **🎛️ Optimizador Genético NSGA-II:** Halla el Frente de Pareto equilibrando costo (S/) y huella de carbono "
+                "(kg CO₂/m³) cumpliendo límites w/cm de ACI 318-19.\n"
+                "3. **📈 Simulador de Resiliencia ante Contingencias:** Re-optimiza mezclas en segundos ante aumentos de precios "
+                "o escasez de insumos (cemento, aditivos, agregados).\n"
+                "4. **🍃 Auditor de Huella de Carbono (ISO 14067):** Monitorea el presupuesto acumulado de CO₂ y dispara alertas semafóricas.\n\n"
+                "💡 *¿Qué te gustaría analizar o calcular en este momento? Puedes escribir una pregunta o tocar una de las sugerencias abajo:*"
+            )
+            suggestions = [
+                "¿Qué mezcla me conviene si sube el precio del cemento?",
+                "Optimiza una mezcla para columnas f'c = 28 MPa",
+                "Ver presupuesto de carbono de la obra",
+                "¿Por qué es superior el Cemento Yura Tipo IP frente a sulfatos?",
+            ]
+            return {
+                "query": user_query,
+                "response": response_text,
+                "tools_called": [],
+                "raw_tool_results": [],
+                "suggestions": suggestions,
+            }
+
+        # -------------------------------------------------------------
+        # 2. CONTINGENCY / PRICE INCREASE / MATERIAL SHORTAGE
+        # -------------------------------------------------------------
+        if any(w in query_lower for w in ["sube", "precio", "escasez", "falta", "desabastecimiento", "contingencia", "imprevisto", "bloqueo", "subio", "subió", "aumento", "aumentó"]):
+            # Extract material
             mat = "cemento"
             if "escoria" in query_lower:
                 mat = "escoria"
             elif "ceniza" in query_lower:
                 mat = "ceniza_volante"
+            elif "puzolana" in query_lower:
+                mat = "puzolana"
             elif "aditivo" in query_lower or "superplastificante" in query_lower:
                 mat = "superplastificante"
+            elif "agregado" in query_lower or "arena" in query_lower or "piedra" in query_lower:
+                mat = "agregado"
 
             # Check percentage
             mult = 1.25
@@ -169,15 +218,19 @@ class SmartCretAssistant:
 
             # Check fc target
             fc_match = re.search(r"(\d+)\s*mpa", query_lower)
-            fc_target = float(fc_match.group(1)) if fc_match else 28.0
+            if not fc_match:
+                kg_match = re.search(r"(\d+)\s*kg/cm", query_lower)
+                fc_target = (float(kg_match.group(1)) * 0.0980665) if kg_match else 28.0
+            else:
+                fc_target = float(fc_match.group(1))
 
             res = self.tool_simulate_contingency(
-                event_type="price_increase" if "precio" in query_lower or "sube" in query_lower else "shortage",
+                event_type="price_increase" if ("precio" in query_lower or "sube" in query_lower or "aument" in query_lower) else "shortage",
                 material=mat,
                 multiplier=mult,
                 fc_target_mpa=fc_target,
             )
-            tool_results.append(ToolExecutionResult("tool_simulate_contingency", {"material": mat, "mult": mult}, res))
+            tool_results.append(ToolExecutionResult("tool_simulate_contingency", {"material": mat, "mult": mult, "fc_target_mpa": fc_target}, res))
 
             mix_orig = res["mezcla_original"]
             mix_reopt = res["mezcla_reoptimizada"]
@@ -201,13 +254,86 @@ class SmartCretAssistant:
                 f"   - Costo resultante: **S/ {imp['costo_nuevo_s_m3']:.2f} / m³** ({imp['delta_costo_pct']:+.1f}% frente a base)\n"
                 f"   - Huella de carbono: **{imp['co2_nuevo_kg_m3']:.1f} kg CO₂/m³** ({imp['delta_co2_pct']:+.1f}%)\n"
             )
+            suggestions = [
+                "¿Qué pasa si falta totalmente la escoria?",
+                "Optimiza una mezcla para columnas f'c = 28 MPa",
+                "Ver presupuesto de carbono de la obra",
+            ]
 
-        # Intent 2: Optimization
-        elif any(w in query_lower for w in ["optimiza", "diseña", "propón", "mezcla para", "dosificación", "frente de pareto"]):
+        # -------------------------------------------------------------
+        # 3. STRUCTURAL ELEMENTS RECOMMENDATION (Zapatas, Columnas, etc.)
+        # -------------------------------------------------------------
+        elif any(w in query_lower for w in ["zapata", "zapatas", "cimiento", "cimentacion", "cimentación", "columna", "columnas", "placa", "placas", "viga", "vigas", "losa", "losas", "pavimento"]):
+            if any(w in query_lower for w in ["zapata", "zapatas", "cimiento", "cimentacion", "cimentación"]):
+                elem_name = "Zapatas y Cimentaciones Directas"
+                fc = 21.0
+                slump = 100.0
+                exp = "F0_normal"
+                norm_note = "Según ACI 318-19 Tabla 19.2.1.1, el f'c mínimo estructural es 17 MPa (recomendado 21 MPa = 210 kg/cm²)."
+            elif any(w in query_lower for w in ["columna", "columnas", "placa", "placas"]):
+                elem_name = "Columnas y Muros Estructurales (Placas)"
+                fc = 28.0
+                slump = 120.0
+                exp = "F0_normal"
+                norm_note = "Para elementos sismorresistentes primarios bajo ACI 318-19 Cap. 18, se exige f'c ≥ 28 MPa (280 kg/cm²) y adecuada fluidez."
+            elif any(w in query_lower for w in ["viga", "vigas", "losa", "losas"]):
+                elem_name = "Vigas y Losas de Entrepiso"
+                fc = 25.0
+                slump = 100.0
+                exp = "F0_normal"
+                norm_note = "Diseño optimizado para control de deflexiones y adherencia según ACI 318-19 Cap. 9."
+            else:
+                elem_name = "Pavimentos de Concreto / Pisos Industriales"
+                fc = 28.0
+                slump = 50.0
+                exp = "F0_normal"
+                norm_note = "Bajo revenimiento para alta resistencia al desgaste abrasivo y módulo de rotura (MR) óptimo."
+
+            proposals = self.tool_optimize_mix(fc_target_mpa=fc, slump_target_mm=slump, exposure_class=exp)
+            tool_results.append(ToolExecutionResult("tool_optimize_mix", {"elemento": elem_name, "fc": fc, "slump": slump}, proposals))
+
+            p_cost = proposals[0]
+            p_co2 = min(proposals, key=lambda x: x["co2_kg_m3"])
+            p_knee = next((p for p in proposals if p.get("perfil") == "Ecoeficiente Balanceado"), proposals[len(proposals)//2])
+
+            response_text = (
+                f"### 🏛️ Recomendación Estructural: {elem_name}\n\n"
+                f"{norm_note}\n\n"
+                f"He generado el **Frente de Pareto** con soluciones calculadas mediante el algoritmo genético NSGA-II:\n\n"
+                f"1. **Opción A (Mínimo Costo):** **S/ {p_cost['costo_s_m3']:.2f} / m³** | {p_cost['co2_kg_m3']} kg CO₂/m³\n"
+                f"   - **Cemento:** {p_cost['dosificacion_kg_m3']['cemento']} kg/m³ | **Adiciones SCM:** {p_cost['dosificacion_kg_m3']['ceniza_volante'] + p_cost['dosificacion_kg_m3']['escoria']} kg/m³\n"
+                f"   - **Desempeño predicho:** f'c = **{p_cost['resistencia_pred_mpa']} MPa** [{p_cost['resistencia_intervalo_90'][0]} - {p_cost['resistencia_intervalo_90'][1]} MPa] | Slump = {p_cost['slump_pred_mm']} mm\n\n"
+                f"2. **Opción B (Ecoeficiente Balanceado - Recomendado para Yura):** **S/ {p_knee['costo_s_m3']:.2f} / m³** | {p_knee['co2_kg_m3']} kg CO₂/m³\n"
+                f"   - Utiliza Cemento Yura con adición puzolánica optimizada, logrando un balance perfecto de durabilidad y huella ambiental.\n"
+                f"   - **Desempeño predicho:** f'c = **{p_knee['resistencia_pred_mpa']} MPa** [{p_knee['resistencia_intervalo_90'][0]} - {p_knee['resistencia_intervalo_90'][1]} MPa]\n\n"
+                f"3. **Opción C (Mínimo Carbono):** **S/ {p_co2['costo_s_m3']:.2f} / m³** | {p_co2['co2_kg_m3']} kg CO₂/m³\n"
+                f"   - Máxima sustitución con adiciones minerales según los límites de durabilidad de ACI 318-19.\n"
+            )
+            suggestions = [
+                f"¿Qué mezcla me conviene si sube el precio del cemento?",
+                "¿Cómo protege el Cemento Yura IP en ambiente de sulfatos?",
+                "Ver presupuesto de carbono de la obra",
+            ]
+
+        # -------------------------------------------------------------
+        # 4. OPTIMIZATION GENERAL (Target fc, Slump, Pareto)
+        # -------------------------------------------------------------
+        elif any(w in query_lower for w in ["optimiza", "diseña", "propón", "propon", "mezcla para", "dosificación", "dosificacion", "frente de pareto", "pareto"]):
+            # Target fc
             fc_match = re.search(r"(\d+)\s*mpa", query_lower)
-            fc = float(fc_match.group(1)) if fc_match else 28.0
+            if not fc_match:
+                kg_match = re.search(r"(\d+)\s*kg/cm", query_lower)
+                fc = round(float(kg_match.group(1)) * 0.0980665, 1) if kg_match else 28.0
+            else:
+                fc = float(fc_match.group(1))
+
+            # Target slump
             slump_match = re.search(r"(\d+)\s*mm", query_lower)
-            slump = float(slump_match.group(1)) if slump_match else 100.0
+            if not slump_match:
+                pulg_match = re.search(r"(\d+)\s*pulg", query_lower)
+                slump = float(pulg_match.group(1)) * 25.4 if pulg_match else 100.0
+            else:
+                slump = float(slump_match.group(1))
 
             proposals = self.tool_optimize_mix(fc_target_mpa=fc, slump_target_mm=slump)
             tool_results.append(ToolExecutionResult("tool_optimize_mix", {"fc": fc, "slump": slump}, proposals))
@@ -225,9 +351,16 @@ class SmartCretAssistant:
                 f"  - Cemento: {p_co2['dosificacion_kg_m3']['cemento']} kg | SCM: {p_co2['dosificacion_kg_m3']['ceniza_volante'] + p_co2['dosificacion_kg_m3']['escoria']} kg\n"
                 f"  - f'c predicho: {p_co2['resistencia_pred_mpa']} MPa [{p_co2['resistencia_intervalo_90'][0]} - {p_co2['resistencia_intervalo_90'][1]} MPa]\n"
             )
+            suggestions = [
+                f"¿Qué ocurre si sube el precio del cemento un 20%?",
+                "Ver presupuesto de carbono de la obra",
+                "¿Cómo influye la relación a/cm en la durabilidad?",
+            ]
 
-        # Intent 3: Carbon Budget Check
-        elif any(w in query_lower for w in ["presupuesto", "carbono", "emisiones", "alerta"]):
+        # -------------------------------------------------------------
+        # 5. CARBON BUDGET AUDIT & ALERTS
+        # -------------------------------------------------------------
+        elif any(w in query_lower for w in ["presupuesto", "carbono", "emisiones", "alerta", "alertas", "iso 14067", "co2"]):
             proj_id = "OBRA-LIMA-01"
             res = self.tool_check_carbon_budget(proj_id)
             tool_results.append(ToolExecutionResult("tool_check_carbon_budget", {"project_id": proj_id}, res))
@@ -241,16 +374,84 @@ class SmartCretAssistant:
                 f"- Presupuesto económico: **S/ {st['cost_spent_soles']:,.2f}** consumidos ({st['cost_pct_consumed']}%)\n\n"
                 f"**Alertas:**\n{alerts_text}\n"
             )
+            suggestions = [
+                "¿Cómo reducir las emisiones de CO₂ en el siguiente vaciado?",
+                "¿Qué mezcla me conviene si sube el precio del cemento?",
+                "Optimiza una mezcla para zapatas f'c = 21 MPa",
+            ]
 
-        # Intent 4: Direct Prediction
+        # -------------------------------------------------------------
+        # 6. NORMATIVE & TECHNICAL KNOWLEDGE (ACI 318, Yura IP, Sulfatos)
+        # -------------------------------------------------------------
+        elif any(w in query_lower for w in ["norma", "aci", "astm", "sulfato", "sulfatos", "durabilidad", "yura", "puzolana", "madurez"]):
+            if "sulfato" in query_lower or "durabilidad" in query_lower:
+                response_text = (
+                    "### 🛡️ Requisitos de Durabilidad según ACI 318-19 (Tabla 19.3.2.1)\n\n"
+                    "Para estructuras expuestas a suelos o aguas subterráneas con sulfatos:\n\n"
+                    "• **Clase S1 (Moderada - 150 a 1500 ppm SO₄):**\n"
+                    "  - Relación w/cm máxima permitida: **0.50**\n"
+                    "  - Resistencia mínima: f'c ≥ 28 MPa (280 kg/cm²)\n"
+                    "  - Tipo de cemento: **Cemento YURA Tipo IP (Puzolánico)** o ASTM C595.\n\n"
+                    "• **Clase S2 (Severa - 1500 a 10000 ppm SO₄):**\n"
+                    "  - Relación w/cm máxima permitida: **0.45**\n"
+                    "  - Resistencia mínima: f'c ≥ 31 MPa\n\n"
+                    "💡 *Mecanismo de acción de YURA Tipo IP:* La puzolana natural reacciona con el hidróxido de calcio libre "
+                    "Ca(OH)₂ liberado en la hidratación, transformándolo en silicato cálcico hidratado (C-S-H) denso, "
+                    "eliminando el sustrato que reacciona con los iones sulfato para formar etringita destructiva."
+                )
+            elif "yura" in query_lower or "puzolana" in query_lower or "tipo ip" in query_lower:
+                response_text = (
+                    "### 🌋 Cementos YURA Tipo IP: Ventajas Técnicas y Ecoeficientes\n\n"
+                    "El Cemento YURA Tipo IP es elaborado mediante molienda conjunta de clínker de alta calidad y puzolana "
+                    "natural volcánica de los yacimientos de Arequipa (20% - 30% de adición según ASTM C595):\n\n"
+                    "1. **Baja Huella de Carbono (EPD Certificada ISO 14067):** Emisión de **245 kg CO₂/t**, lo que representa "
+                    "una reducción de **-24.6%** frente a un cemento Tipo I ordinario (325 kg CO₂/t).\n"
+                    "2. **Resistencia a Ataques Químicos:** Excelente desempeño frente a sales marinas y sulfatos.\n"
+                    "3. **Menor Calor de Hidratación:** Previene la fisuración térmica en vaciados masivos (placas y zapatas).\n"
+                    "4. **Ganancia Progresiva de Resistencia:** La reacción puzolánica secundaria continúa incrementando la capacidad axial "
+                    "más allá de los 28 días (hasta los 90 días)."
+                )
+            else:
+                response_text = (
+                    "### 📐 Marco Normativo ACI y ASTM Integrado en SmartCret\n\n"
+                    "SmartCret automatiza las especificaciones técnicas internacionales:\n\n"
+                    "• **ACI 318-19:** Código de edificación para concreto estructural (capítulos 19 y 26 sobre límites de relación agua/cementante y resistencia de diseño).\n"
+                    "• **ACI 211.1:** Práctica estándar para seleccionar proporciones de concreto de peso normal.\n"
+                    "• **ACI 214R:** Evaluación estadística de resultados de resistencia a compresión (f'cr).\n"
+                    "• **ASTM C39:** Método de ensayo estándar para resistencia a la compresión de cilindros cilíndricos.\n"
+                    "• **ASTM C143:** Método de ensayo para asentamiento de concreto de cemento hidráulico (Slump).\n"
+                    "• **ASTM C1074:** Práctica para estimar la resistencia del concreto mediante el método de madurez."
+                )
+            suggestions = [
+                "Optimiza una mezcla para columnas f'c = 28 MPa",
+                "¿Qué mezcla me conviene si sube el precio del cemento?",
+                "Ver presupuesto de carbono de la obra",
+            ]
+            return {
+                "query": user_query,
+                "response": response_text,
+                "tools_called": [],
+                "raw_tool_results": [],
+                "suggestions": suggestions,
+            }
+
+        # -------------------------------------------------------------
+        # 7. SPECIFIC MIX INGESTION / PREDICTION (DEFAULT ENGINE)
+        # -------------------------------------------------------------
         else:
-            # Default to test mix prediction
+            # Parse possible custom components
+            cem_match = re.search(r"(\d+)\s*(?:kg)?\s*(?:de\s*)?cemento", query_lower)
+            cem_val = float(cem_match.group(1)) if cem_match else 350.0
+
+            water_match = re.search(r"(\d+)\s*(?:kg|l|litros)?\s*(?:de\s*)?agua", query_lower)
+            water_val = float(water_match.group(1)) if water_match else 180.0
+
             sample_mix = {
-                "cemento_kg": 350.0,
+                "cemento_kg": cem_val,
                 "ceniza_volante_kg": 50.0,
                 "escoria_kg": 0.0,
                 "puzolana_kg": 0.0,
-                "agua_kg": 180.0,
+                "agua_kg": water_val,
                 "superplastificante_kg": 2.5,
                 "agregado_grueso_kg": 1050.0,
                 "agregado_fino_kg": 750.0,
@@ -261,16 +462,23 @@ class SmartCretAssistant:
             tool_results.append(ToolExecutionResult("tool_predict_mix", sample_mix, pred))
             response_text = (
                 f"### 🧪 Predicción de Desempeño Técnico con Intervalos de Incertidumbre (90%)\n\n"
+                f"- **Dosificación base evaluada:** Cemento = {cem_val:.0f} kg/m³ | Agua = {water_val:.0f} kg/m³ (a/cm = {water_val/cem_val:.2f})\n"
                 f"- **Resistencia axial:** {pred['resistencia_mpa']} MPa "
                 f"(Intervalo de confianza: [{pred['resistencia_intervalo_90'][0]} - {pred['resistencia_intervalo_90'][1]} MPa])\n"
                 f"- **Trabajabilidad (Slump):** {pred['slump_mm']} mm "
                 f"(Intervalo de confianza: [{pred['slump_intervalo_90'][0]} - {pred['slump_intervalo_90'][1]} mm])\n"
                 f"- **Evaluación de extrapolación:** {'⚠️ Fuera de rango de entrenamiento' if pred['es_extrapolacion'] else '✅ Dentro del dominio experimental seguro'}\n"
             )
+            suggestions = [
+                "¿Qué mezcla me conviene si sube el precio del cemento?",
+                "Optimiza una mezcla para columnas f'c = 28 MPa",
+                "Ver presupuesto de carbono de la obra",
+            ]
 
         return {
             "query": user_query,
             "response": response_text,
             "tools_called": [r.tool_name for r in tool_results],
             "raw_tool_results": [r.output for r in tool_results],
+            "suggestions": suggestions,
         }
