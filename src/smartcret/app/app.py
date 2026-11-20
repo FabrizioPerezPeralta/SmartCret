@@ -535,14 +535,31 @@ def render_interactive_assistant(key_prefix=""):
             "content": query_to_process,
         })
         with st.spinner("Ejecutando herramientas algorítmicas y verificando límites ACI..."):
-            resp = assistant.process_query(query_to_process)
-            st.session_state["agent_messages"].append({
-                "role": "assistant",
-                "content": resp["response"],
-                "tools": resp["tools_called"],
-                "raw": resp["raw_tool_results"],
-                "suggestions": resp.get("suggestions", []),
-            })
+            try:
+                resp = assistant.process_query(query_to_process)
+                st.session_state["agent_messages"].append({
+                    "role": "assistant",
+                    "content": resp["response"],
+                    "tools": resp["tools_called"],
+                    "raw": resp["raw_tool_results"],
+                    "suggestions": resp.get("suggestions", []),
+                })
+            except Exception as e:
+                st.session_state["agent_messages"].append({
+                    "role": "assistant",
+                    "content": (
+                        f"⚠️ **Aviso del Asistente:** No fue posible procesar la consulta directamente ({type(e).__name__}: {str(e)}).\n\n"
+                        f"Te recomiendo seleccionar una de las consultas de prueba recomendadas abajo o ingresar especificaciones concretas (por ejemplo: *optimiza mezcla para 28 MPa* o *¿qué mezcla conviene si sube el cemento?*)."
+                    ),
+                    "tools": [],
+                    "raw": [],
+                    "suggestions": [
+                        "¿Qué mezcla me conviene si sube el precio del cemento?",
+                        "Optimiza una mezcla para columnas f'c = 28 MPa",
+                        "Ver presupuesto de carbono de la obra",
+                        "Recomienda una dosificación para zapatas (210 kg/cm²)",
+                    ],
+                })
         st.rerun()
 
 
