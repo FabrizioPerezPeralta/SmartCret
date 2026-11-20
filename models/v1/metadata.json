@@ -1,0 +1,37 @@
+{
+  "version": "v1",
+  "trained_at": "2026-11-20T09:00:10.173984",
+  "best_model_name": "Random Forest",
+  "n_train": 350,
+  "n_val": 75,
+  "n_test": 75,
+  "metrics_test_resistencia": {
+    "rmse": 2.759,
+    "mae": 2.296,
+    "r2": 0.9282,
+    "mape": 0.0586
+  },
+  "metrics_test_slump": {
+    "rmse": 16.921,
+    "mae": 12.084,
+    "r2": 0.9468,
+    "mape": 0.1209
+  },
+  "features_numerical": [
+    "cemento_kg",
+    "ceniza_volante_kg",
+    "escoria_kg",
+    "puzolana_kg",
+    "agua_kg",
+    "superplastificante_kg",
+    "agregado_grueso_kg",
+    "agregado_fino_kg",
+    "edad_dias",
+    "relacion_ac"
+  ],
+  "features_categorical": [
+    "tipo_cemento"
+  ],
+  "uncertainty_q90_resistencia_mpa": 4.42,
+  "uncertainty_q90_slump_mm": 22.4
+}

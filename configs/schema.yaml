@@ -1,0 +1,133 @@
+version: "1.0"
+description: "Contrato de datos de diseño y ensayo de mezclas de concreto para SmartCret"
+
+columns:
+  cemento_kg:
+    type: "float"
+    unit: "kg/m³"
+    description: "Contenido de cemento Portland por metro cúbico"
+    min: 100.0
+    max: 600.0
+    required: true
+    aliases: ["cemento", "cement", "cement_kg", "cemento_kg_m3"]
+
+  ceniza_volante_kg:
+    type: "float"
+    unit: "kg/m³"
+    description: "Contenido de ceniza volante (fly ash) por metro cúbico"
+    min: 0.0
+    max: 250.0
+    required: false
+    default: 0.0
+    aliases: ["ceniza_volante", "fly_ash", "ceniza", "fly_ash_kg"]
+
+  escoria_kg:
+    type: "float"
+    unit: "kg/m³"
+    description: "Contenido de escoria granulada de alto horno (GGBS) por metro cúbico"
+    min: 0.0
+    max: 300.0
+    required: false
+    default: 0.0
+    aliases: ["escoria", "blast_furnace_slag", "slag", "escoria_kg"]
+
+  puzolana_kg:
+    type: "float"
+    unit: "kg/m³"
+    description: "Contenido de puzolana natural activada por metro cúbico"
+    min: 0.0
+    max: 250.0
+    required: false
+    default: 0.0
+    aliases: ["puzolana", "pozzolan", "puzolana_natural", "puzolana_kg"]
+
+  agua_kg:
+    type: "float"
+    unit: "kg/m³"
+    description: "Contenido de agua de mezclado por metro cúbico"
+    min: 100.0
+    max: 280.0
+    required: true
+    aliases: ["agua", "water", "water_kg", "agua_kg_m3"]
+
+  superplastificante_kg:
+    type: "float"
+    unit: "kg/m³"
+    description: "Aditivo superplastificante / reductor de agua de alto rango"
+    min: 0.0
+    max: 30.0
+    required: false
+    default: 0.0
+    aliases: ["aditivo", "superplastificante", "superplasticizer", "sp_kg", "aditivo_kg"]
+
+  agregado_grueso_kg:
+    type: "float"
+    unit: "kg/m³"
+    description: "Contenido de agregado grueso (grava/piedra chancada) por metro cúbico"
+    min: 650.0
+    max: 1350.0
+    required: true
+    aliases: ["agregado_grueso", "grava", "coarse_aggregate", "piedra"]
+
+  agregado_fino_kg:
+    type: "float"
+    unit: "kg/m³"
+    description: "Contenido de agregado fino (arena) por metro cúbico"
+    min: 400.0
+    max: 1100.0
+    required: true
+    aliases: ["agregado_fino", "arena", "fine_aggregate"]
+
+  edad_dias:
+    type: "int"
+    unit: "días"
+    description: "Edad de curado en días al momento del ensayo de compresión"
+    min: 1
+    max: 365
+    required: true
+    aliases: ["edad", "age", "age_days", "edad_ensayo"]
+
+  tipo_cemento:
+    type: "string"
+    unit: "categoría"
+    description: "Tipo de cemento según NTP / ASTM (Tipo I, Tipo IP, Tipo HS, Tipo HE, etc.)"
+    allowed_values: ["Tipo I", "Tipo IP", "Tipo IPM", "Tipo HS", "Tipo HE", "Tipo V", "Tipo GU"]
+    default: "Tipo I"
+    required: false
+    aliases: ["tipo_de_cemento", "cement_type", "tipo"]
+
+  relacion_ac:
+    type: "float"
+    unit: "adimensional"
+    description: "Relación agua/material cementante (a/cm)"
+    min: 0.22
+    max: 0.85
+    required: false
+    calculated: true
+    aliases: ["relacion_agua_cemento", "w_c", "water_cement_ratio", "a_c"]
+
+targets:
+  resistencia_mpa:
+    type: "float"
+    unit: "MPa"
+    description: "Resistencia a la compresión axial a la edad de ensayo"
+    min: 5.0
+    max: 110.0
+    required: true
+    aliases: ["resistencia", "fc", "compressive_strength", "strength_mpa"]
+
+  slump_mm:
+    type: "float"
+    unit: "mm"
+    description: "Trabajabilidad medida por asentamiento en cono de Abrams (slump)"
+    min: 0.0
+    max: 260.0
+    required: true
+    aliases: ["asentamiento", "slump", "slump_cone_mm", "trabajabilidad"]
+
+metadata:
+  fuente:
+    type: "string"
+    description: "Origen de los datos: sintetico, laboratorio_empresa, datos_abiertos"
+    allowed_values: ["sintetico", "laboratorio_empresa", "datos_abiertos"]
+    required: true

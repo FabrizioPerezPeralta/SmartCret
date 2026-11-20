@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "smartcret"
+version = "0.1.0"
+description = "Diseño y optimización de mezclas de concreto ecoeficientes mediante Machine Learning"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "SmartCret Team" }
+]
+dependencies = [
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "scipy>=1.10.0",
+    "scikit-learn>=1.2.0",
+    "pyyaml>=6.0",
+    "streamlit>=1.28.0",
+    "reportlab>=4.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.pyrefly]
+search-path = ["src"]
+python-interpreter-path = "C:/Users/chara/AppData/Local/Programs/Python/Python312/python.exe"
+site-package-path = [
+    "C:/Users/chara/AppData/Local/Programs/Python/Python312/Lib/site-packages",
+    "C:/Users/chara/AppData/Roaming/Python/Python312/site-packages"
+]
+
+

@@ -1,0 +1,112 @@
+version: "1.0"
+currency: "PEN (S/)"
+currency_symbol: "S/"
+
+materials:
+  cemento:
+    name: "Cemento Portland Tipo I"
+    unit: "kg"
+    cost_per_unit: 0.450           # S/ 19.12 por bolsa de 42.5 kg
+    co2_factor_kg: 0.820          # kg CO₂e / kg (EPD promedio clinker)
+    density_kg_m3: 3150.0
+    available: true
+    min_stock_ton: 50.0
+
+  ceniza_volante:
+    name: "Ceniza Volante Clase F"
+    unit: "kg"
+    cost_per_unit: 0.180           # Subproducto termoeléctrico
+    co2_factor_kg: 0.020          # Emisión por molienda/transporte
+    density_kg_m3: 2300.0
+    available: true
+    min_stock_ton: 20.0
+
+  escoria:
+    name: "Escoria de Alto Horno (GGBS)"
+    unit: "kg"
+    cost_per_unit: 0.220           # Siderúrgica
+    co2_factor_kg: 0.075          # Molienda y secado
+    density_kg_m3: 2900.0
+    available: true
+    min_stock_ton: 20.0
+
+  puzolana:
+    name: "Puzolana Natural Activada"
+    unit: "kg"
+    cost_per_unit: 0.200           # Cantera local
+    co2_factor_kg: 0.035
+    density_kg_m3: 2450.0
+    available: true
+    min_stock_ton: 30.0
+
+  agua:
+    name: "Agua de Mezclado"
+    unit: "kg"
+    cost_per_unit: 0.006           # S/ 6.00 por m³
+    co2_factor_kg: 0.001
+    density_kg_m3: 1000.0
+    available: true
+    min_stock_ton: 999.0
+
+  superplastificante:
+    name: "Aditivo Superplastificante Policaboxilato"
+    unit: "kg"
+    cost_per_unit: 4.800           # S/ 4.80 / kg
+    co2_factor_kg: 1.250          # Síntesis química
+    density_kg_m3: 1100.0
+    available: true
+    min_stock_ton: 5.0
+
+  agregado_grueso:
+    name: "Piedra Chancada 1/2 pulg"
+    unit: "kg"
+    cost_per_unit: 0.045           # S/ 45.00 / tonelada
+    co2_factor_kg: 0.006          # Extracción y trituración
+    density_kg_m3: 2650.0
+    available: true
+    min_stock_ton: 100.0
+
+  agregado_fino:
+    name: "Arena Gruesa Lavada"
+    unit: "kg"
+    cost_per_unit: 0.040           # S/ 40.00 / tonelada
+    co2_factor_kg: 0.005          # Extracción y zarandeo
+    density_kg_m3: 2650.0
+    available: true
+    min_stock_ton: 100.0
+
+  cemento_yura_ip:
+    name: "Cemento Yura Tipo IP Puzolánico"
+    unit: "kg"
+    cost_per_unit: 0.600           # S/ 25.50 por bolsa de 42.5 kg en Arequipa
+    co2_factor_kg: 0.489          # Certificación ISO 14067 (Yura S.A. / A2G) -43.5% vs Portland
+    density_kg_m3: 2850.0
+    available: true
+    min_stock_ton: 50.0
+
+  cemento_yura_he:
+    name: "Cemento Yura Tipo HE Alta Resistencia"
+    unit: "kg"
+    cost_per_unit: 0.650           # S/ 27.60 por bolsa en Arequipa
+    co2_factor_kg: 0.675          # Certificación ISO 14067 (Yura S.A. / A2G)
+    density_kg_m3: 2920.0
+    available: true
+    min_stock_ton: 20.0
+
+  humo_silice:
+    name: "Humo de Sílice (Micro-sílice)"
+    unit: "kg"
+    cost_per_unit: 1.500           # S/ 1.50 / kg
+    co2_factor_kg: 0.028          # Subproducto metalúrgico
+    density_kg_m3: 2200.0
+    available: true
+    min_stock_ton: 10.0
+
+  agregado_reciclado:
+    name: "Agregado Grueso Reciclado (Demolición Arequipa)"
+    unit: "kg"
+    cost_per_unit: 0.028           # S/ 28.00 / tonelada
+    co2_factor_kg: 0.0024         # Trituración in situ (-60% vs natural)
+    density_kg_m3: 2450.0
+    available: true
+    min_stock_ton: 50.0

@@ -1,0 +1,4 @@
+Modelo,R² Resistencia (CV),MAPE Resistencia (CV),R² Slump (CV),MAPE Slump (CV)
+Ridge (Línea base),0.618,12.10%,0.525,47.45%
+Random Forest,0.836,6.95%,0.781,21.02%
+Gradient Boosting,0.697,11.17%,0.822,19.78%
