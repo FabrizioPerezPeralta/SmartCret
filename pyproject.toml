@@ -18,7 +18,9 @@ dependencies = [
     "scikit-learn>=1.2.0",
     "pyyaml>=6.0",
     "streamlit>=1.28.0",
+    "plotly>=5.15.0",
     "reportlab>=4.0.0",
+    "pillow>=10.0.0",
 ]
 
 [project.optional-dependencies]
@@ -32,13 +34,3 @@ where = ["src"]
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
-
-[tool.pyrefly]
-search-path = ["src"]
-python-interpreter-path = "C:/Users/chara/AppData/Local/Programs/Python/Python312/python.exe"
-site-package-path = [
-    "C:/Users/chara/AppData/Local/Programs/Python/Python312/Lib/site-packages",
-    "C:/Users/chara/AppData/Roaming/Python/Python312/site-packages"
-]
-
-
