@@ -90,7 +90,7 @@ columns:
   tipo_cemento:
     type: "string"
     unit: "categoría"
-    description: "Tipo de cemento según NTP / ASTM (Tipo I, Tipo IP, Tipo HS, Tipo HE, etc.)"
+    description: "Tipo de cemento según norma ASTM / ACI (Tipo I, Tipo IP, Tipo HS, Tipo HE, etc.)"
     allowed_values: ["Tipo I", "Tipo IP", "Tipo IPM", "Tipo HS", "Tipo HE", "Tipo V", "Tipo GU"]
     default: "Tipo I"
     required: false

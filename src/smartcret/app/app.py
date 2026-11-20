@@ -2,7 +2,7 @@
 
 Enterprise interface engineered for institutional and jury evaluation:
 1. Panel principal: Visión ejecutiva, KPIs, arquitectura y metas del proyecto.
-2. Dosificación: Cálculo volumétrico ACI 211 / NTP 339 y balance de mezclas.
+2. Dosificación: Proporcionamiento volumétrico ACI 211.1 y durabilidad ACI 318.
 3. Optimización: Algoritmo genético multiobjetivo NSGA-II y Frente de Pareto.
 4. Escenarios: Simulador de contingencias de precios/suministro y fichas PDF.
 5. Materiales: Catálogo con factores EPD certificados (Cementos Yura).
@@ -373,16 +373,16 @@ with st.sidebar:
             </div>
             <div style="display: flex; flex-direction: column; gap: 7px; font-size: 0.73rem; color: #94A3B8;">
                 <div style="display: flex; justify-content: space-between;">
-                    <span>Norma activa:</span>
-                    <b style="color: #F8FAFC;">NTP 339 / ACI 318</b>
+                    <span>Código Activo:</span>
+                    <b style="color: #F8FAFC;">ACI 318-19 / ACI 211.1</b>
                 </div>
                 <div style="display: flex; justify-content: space-between;">
                     <span>Dataset Base:</span>
-                    <b style="color: #38BDF8;">Yura Arequipa (808 cil.)</b>
+                    <b style="color: #38BDF8;">Yura Arequipa (808 cil. ASTM C39)</b>
                 </div>
                 <div style="display: flex; justify-content: space-between;">
                     <span>Precisión Test:</span>
-                    <b style="color: #34D399;">MAPE = 4.34% (< 10%)</b>
+                    <b style="color: #34D399;">MAPE = 4.34% (&lt; 10% ACI 214R)</b>
                 </div>
                 <div style="display: flex; justify-content: space-between;">
                     <span>Incertidumbre:</span>
@@ -404,12 +404,12 @@ st.markdown(
     <div class="hero-banner">
         <div>
             <h1 class="hero-title">SMARTCRET</h1>
-            <div class="hero-subtitle">Sistema Integral de Diseño, Optimización y Control Ecoeficiente de Concreto mediante Machine Learning</div>
+            <div class="hero-subtitle">Sistema Integral de Diseño, Optimización y Control Ecoeficiente de Concreto según Código ACI 318 y ACI 211.1</div>
         </div>
         <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
             <div style="display: flex; gap: 8px;">
-                <span class="badge-yura">🏢 Cementos YURA S.A.</span>
-                <span class="badge-norm">⚖️ NTP 339 / ACI 318 / E.060</span>
+                <span class="badge-yura">🏢 Cementos YURA S.A. (ASTM C595)</span>
+                <span class="badge-norm">⚖️ CÓDIGO ACI 318-19 / ACI 211.1</span>
             </div>
             <div class="badge-active">
                 {icons.get(selected_module, '')} {selected_module}
@@ -498,8 +498,8 @@ if selected_module == "Panel principal":
                 </div>
                 <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 14px 10px;">
                     <div style="font-size: 1.5rem; margin-bottom: 4px;">⚙️</div>
-                    <b style="color: #F8FAFC; font-size: 0.85rem;">2. Curaduría y Leyes</b>
-                    <p style="color: #94A3B8; font-size: 0.73rem; margin: 4px 0 0 0;">Verificación ACI 211 / NTP 339 / Límites de agua-cemento</p>
+                    <b style="color: #F8FAFC; font-size: 0.85rem;">2. Curaduría y ACI</b>
+                    <p style="color: #94A3B8; font-size: 0.73rem; margin: 4px 0 0 0;">Proporcionamiento ACI 211.1 / Durabilidad ACI 318 Cap. 19 y 26</p>
                 </div>
                 <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 14px 10px;">
                     <div style="font-size: 1.5rem; margin-bottom: 4px;">🧠</div>
@@ -545,7 +545,7 @@ if selected_module == "Panel principal":
                 <b>Algoritmo de Optimización:</b> NSGA-II Multiobjetivo<br/>
                 <b>Modelo de Machine Learning:</b> Random Forest v2 (Yura Calibrado)<br/>
                 <b>Intervalos de Incertidumbre:</b> Conformal Prediction (90% Confianza)<br/>
-                <b>Normas Técnicas:</b> NTP 339.034 / ACI 318 / E.060<br/>
+                <b>Código Estructural:</b> ACI 318-19 / ACI 211.1 / ACI 301 (ASTM C39/C33)<br/>
                 <b>Persistencia:</b> SQLite (`smartcret.db`) con auditoría<br/>
                 <b>Reportes:</b> Fichas Técnicas Oficiales en PDF (ReportLab)
             </div>
@@ -571,7 +571,7 @@ if selected_module == "Panel principal":
 # =============================================================
 elif selected_module == "Dosificación":
     st.markdown("<div class='module-header'>🧮 Módulo de Dosificación Volumétrica por m³</div>", unsafe_allow_html=True)
-    st.markdown("<div class='module-sub'>Cálculo volumétrico estricto de proporciones de concreto según métodos ACI 211 y NTP 339.</div>", unsafe_allow_html=True)
+    st.markdown("<div class='module-sub'>Cálculo volumétrico estricto de proporciones según el estándar ACI 211.1 y verificación de requisitos de durabilidad ACI 318.</div>", unsafe_allow_html=True)
 
     d_col1, d_col2 = st.columns([1.1, 1.3])
 
@@ -637,14 +637,14 @@ elif selected_module == "Dosificación":
 
         recipe_df = pd.DataFrame(
             [
-                {"Componente": "Cemento Portland", "Cantidad": f"{cemento_calc:.1f} kg", "Volumen (L)": f"{cemento_calc/3.15:.1f} L", "Función": "Matriz aglomerante principal"},
-                {"Componente": "Adición SCM (Puzolana/Ceniza)", "Cantidad": f"{puz_calc + ceniza_calc:.1f} kg", "Volumen (L)": f"{(puz_calc+ceniza_calc)/2.30:.1f} L", "Función": "Reacción puzolánica y microfiller"},
-                {"Componente": "Escoria GGBS", "Cantidad": f"{escoria_calc:.1f} kg", "Volumen (L)": f"{escoria_calc/2.90:.1f} L", "Función": "Hidráulica latente y durabilidad"},
-                {"Componente": "Agua de mezclado", "Cantidad": f"{agua_calc:.1f} kg", "Volumen (L)": f"{agua_calc:.1f} L", "Función": "Hidratación y lubricación"},
-                {"Componente": "Superplastificante", "Cantidad": f"{sp_calc:.2f} kg", "Volumen (L)": f"{sp_calc/1.1:.1f} L", "Función": "Reductor de agua alto rango"},
-                {"Componente": "Piedra Chancada 1/2 pulg", "Cantidad": f"{agg_grueso:.1f} kg", "Volumen (L)": f"{agg_grueso/2.65:.1f} L", "Función": "Esqueleto granular grueso"},
-                {"Componente": "Arena Gruesa Lavada", "Cantidad": f"{agg_fino:.1f} kg", "Volumen (L)": f"{agg_fino/2.65:.1f} L", "Función": "Esqueleto granular fino"},
-                {"Componente": "Aire atrapado", "Cantidad": "—", "Volumen (L)": "20.0 L (2.0%)", "Función": "Vacíos según ACI 211"},
+                {"Componente": "Cemento Portland", "Cantidad": f"{cemento_calc:.1f} kg", "Volumen (L)": f"{cemento_calc/3.15:.1f} L", "Función": "Matriz aglomerante (ASTM C150 / ASTM C595)"},
+                {"Componente": "Adición SCM (Puzolana/Ceniza)", "Cantidad": f"{puz_calc + ceniza_calc:.1f} kg", "Volumen (L)": f"{(puz_calc+ceniza_calc)/2.30:.1f} L", "Función": "Reacción puzolánica y durabilidad (ASTM C618 / ACI 318)"},
+                {"Componente": "Escoria GGBS", "Cantidad": f"{escoria_calc:.1f} kg", "Volumen (L)": f"{escoria_calc/2.90:.1f} L", "Función": "Hidráulica latente (ASTM C989)"},
+                {"Componente": "Agua de mezclado", "Cantidad": f"{agua_calc:.1f} kg", "Volumen (L)": f"{agua_calc:.1f} L", "Función": "Agua de hidratación (ASTM C1602)"},
+                {"Componente": "Superplastificante", "Cantidad": f"{sp_calc:.2f} kg", "Volumen (L)": f"{sp_calc/1.1:.1f} L", "Función": "Reductor de agua alto rango Tipo F (ASTM C494)"},
+                {"Componente": "Piedra Chancada 1/2 pulg", "Cantidad": f"{agg_grueso:.1f} kg", "Volumen (L)": f"{agg_grueso/2.65:.1f} L", "Función": "Agregado grueso graduado (ASTM C33)"},
+                {"Componente": "Arena Gruesa Lavada", "Cantidad": f"{agg_fino:.1f} kg", "Volumen (L)": f"{agg_fino/2.65:.1f} L", "Función": "Agregado fino graduado (ASTM C33)"},
+                {"Componente": "Aire atrapado", "Cantidad": "—", "Volumen (L)": "20.0 L (2.0%)", "Función": "Contenido de aire según ACI 211.1 Tabla 6.3.3"},
             ]
         )
         st.dataframe(recipe_df, use_container_width=True, hide_index=True)
@@ -898,7 +898,7 @@ elif selected_module == "Materiales":
                 "Costo Unitario (S/ / kg)": v["cost_per_unit"],
                 "Factor Emisión (kg CO₂e/kg)": v["co2_factor_kg"],
                 "Densidad (kg/m³)": v["density_kg_m3"],
-                "Certificación EPD": "YURA ISO 14067 ✅" if "yura" in k.lower() or "puzolana" in k.lower() else "Estándar E.060",
+                "Normativa / EPD": "ASTM C595 / ISO 14067 ✅" if "yura" in k.lower() or "puzolana" in k.lower() else "ASTM C33 / C150",
                 "Disponible": "Sí ✅" if v.get("available", True) else "No ❌",
             }
         )
@@ -1161,7 +1161,7 @@ elif selected_module == "Alertas":
     all_alerts = [
         {"Nivel": "CRÍTICA", "Icono": "🔴", "Tipo": "Presupuesto", "Mensaje": "Alerta preventiva: Se ha alcanzado el 82.5% de la cuota de carbono autorizada para la Obra Las Palmeras.", "Hora": "Hace 10 min"},
         {"Nivel": "PREVENTIVA", "Icono": "🟡", "Tipo": "Materiales", "Mensaje": "Stock de Escoria GGBS por debajo del umbral de reserva estratégica (quedan 18 toneladas).", "Hora": "Hace 2 horas"},
-        {"Nivel": "INFORMATIVA", "Icono": "🟢", "Tipo": "Conformidad", "Mensaje": "Mezcla certificada: El diseño f'c = 28 MPa cumple con la norma NTP 339 con 90% de confianza estadística.", "Hora": "Hoy 08:30 AM"},
+        {"Nivel": "INFORMATIVA", "Icono": "🟢", "Tipo": "Conformidad", "Mensaje": "Mezcla certificada: El diseño f'c = 28 MPa cumple con los requisitos estructurales y de durabilidad del código ACI 318 con 90% de confianza estadística.", "Hora": "Hoy 08:30 AM"},
     ]
 
     for a in all_alerts:

@@ -217,7 +217,7 @@ class SmartCretAssistant:
 
             response_text = (
                 f"### 🎯 Mezclas Optimizadas para f'c = {fc:.0f} MPa y Slump = {slump:.0f} mm\n\n"
-                f"He generado el Frente de Pareto de soluciones que cumplen la norma NTP 339 / ACI 318:\n\n"
+                f"He generado el Frente de Pareto de soluciones que cumplen el código estructural ACI 318 / ACI 211.1:\n\n"
                 f"• **Opción A (Mínimo Costo):** S/ {p_cost['costo_s_m3']:.2f}/m³ | {p_cost['co2_kg_m3']} kg CO₂/m³\n"
                 f"  - Cemento: {p_cost['dosificacion_kg_m3']['cemento']} kg | SCM: {p_cost['dosificacion_kg_m3']['ceniza_volante'] + p_cost['dosificacion_kg_m3']['escoria']} kg\n"
                 f"  - f'c predicho: {p_cost['resistencia_pred_mpa']} MPa [{p_cost['resistencia_intervalo_90'][0]} - {p_cost['resistencia_intervalo_90'][1]} MPa]\n\n"

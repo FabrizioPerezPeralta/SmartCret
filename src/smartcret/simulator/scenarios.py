@@ -225,7 +225,7 @@ class ScenarioManager:
         notes_text = (
             "<b>Notas Técnicas y Declaración de Incertidumbre:</b><br/>"
             "1. Las mezclas reportadas han sido optimizadas mediante algoritmo genético multiobjetivo (NSGA-II) "
-            "sujeto a las restricciones de la norma NTP 339 / ACI 318.<br/>"
+            "sujeto a las restricciones y requisitos de durabilidad del código estructural ACI 318 y ACI 211.1.<br/>"
             "2. Los intervalos de confianza reportados corresponden al 90% (calibración conforme). Toda mezcla "
             "propuesta debe validarse empíricamente en laboratorio antes de su aplicación en elementos estructurales.<br/>"
             "3. Los factores de emisión de CO₂ corresponden a declaraciones ambientales de producto (EPD) promedio."

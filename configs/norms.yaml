@@ -1,5 +1,5 @@
 version: "1.0"
-standard: "NTP 339 / ACI 318 / E.060 Concreto Armado"
+standard: "ACI 318-19 / ACI 211.1 / ACI 301 (American Concrete Institute)"
 
 general_limits:
   min_cemento_kg: 280.0
@@ -8,13 +8,13 @@ general_limits:
   max_total_binder_kg: 500.0
   min_sand_ratio: 0.36
   max_sand_ratio: 0.50
-  air_content_pct: 2.0  # 20 L/m³ aire atrapado
+  air_content_pct: 2.0  # 20 L/m³ aire atrapado según ACI 211.1 Tabla 6.3.3
 
 replacement_limits:
-  max_fly_ash_pct: 0.35     # ASTM C618 / ACI 318 límite máx 35%
-  max_slag_pct: 0.50        # ASTM C989 máx 50%
-  max_pozzolan_pct: 0.30    # NTP 334 máx 30%
-  max_total_scm_pct: 0.50   # Máximo reemplazo total de clinker
+  max_fly_ash_pct: 0.35     # ASTM C618 / ACI 318 Tabla 26.4.2.2(b) máx 35%
+  max_slag_pct: 0.50        # ASTM C989 / ACI 318 Tabla 26.4.2.2(b) máx 50%
+  max_pozzolan_pct: 0.30    # ASTM C618 / ACI 318 Tabla 26.4.2.2(b) máx 30%
+  max_total_scm_pct: 0.50   # ACI 318 límite total SCM para durabilidad (máx 50%)
 
 exposure_classes:
   F0_normal:

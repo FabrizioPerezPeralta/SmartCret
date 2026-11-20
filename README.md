@@ -167,7 +167,7 @@ Trabajar **fase por fase**, no con un solo prompt gigante. Ejemplo para la Fase 
 - [ ] Tipo de cemento y porcentaje de adición de cada mezcla.
 - [ ] Costos actuales por material.
 - [ ] Factores de emisión por material, con la fuente de cada uno.
-- [ ] Normas aplicables (NTP / ACI) y límites a usar como restricciones.
+- [x] Normas aplicables: Código ACI 318-19, ACI 211.1 y límites de durabilidad ACI como restricciones.
 - [ ] Origen de cada dato (abierto vs. laboratorio de la empresa).
 
 ---

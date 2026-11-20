@@ -12,7 +12,7 @@ SmartCret es una plataforma digital de Machine Learning y optimización multiobj
    - Nunca mezclar datos sintéticos con datos reales sin trazabilidad.
    - La partición de test reservado (`test_reserved`) se mantiene intacta para evaluación final sin fuga de datos.
 3. **Parámetros en Archivos YAML:**
-   - Restricciones normativas (NTP 339, ACI 318) residen en `configs/norms.yaml`.
+   - Restricciones normativas (Código ACI 318, ACI 211.1) residen en `configs/norms.yaml`.
    - Precios, factores de emisión y disponibilidad residen en `configs/materials.yaml`.
    - Hiperparámetros y modelos residen en `configs/model.yaml`.
 4. **Reproducibilidad:**
