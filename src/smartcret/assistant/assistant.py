@@ -8,7 +8,7 @@ import json
 from smartcret.models.predictor import ConcretePredictor
 from smartcret.optimizer.optimizer import MixOptimizer, OptimizationRequest, MixProposal
 from smartcret.simulator.simulator import ContingencySimulator, ContingencyEvent
-from smartcret.simulator.carbon_budget import CarbonBudgetTracker
+from smartcret.simulator.carbon_budget import CarbonBudgetTracker, ProjectCarbonBudget
 from smartcret.simulator.scenarios import ScenarioManager
 
 
@@ -106,9 +106,30 @@ class SmartCretAssistant:
             "resumen_tecnico": impact.engineering_summary,
         }
 
-    def tool_check_carbon_budget(self, project_id: str) -> Dict[str, Any]:
+    def tool_check_carbon_budget(self, project_id: str = "OBRA-LIMA-01") -> Dict[str, Any]:
         """Tool: Evaluates project carbon budget and pending alerts."""
-        status = self.carbon_tracker.get_project_status(project_id)
+        try:
+            status = self.carbon_tracker.get_project_status(project_id)
+        except ValueError:
+            # Fallback to existing project or initialize default
+            avail = getattr(self.carbon_tracker, "list_projects", lambda: [])()
+            if avail:
+                project_id = avail[0]["project_id"]
+                status = self.carbon_tracker.get_project_status(project_id)
+            else:
+                p_def = ProjectCarbonBudget(
+                    project_id=project_id,
+                    project_name="Complejo Residencial Las Palmeras",
+                    planned_volume_m3=300.0,
+                    co2_budget_ton=68.0,
+                    cost_budget_soles=65000.0,
+                    warning_threshold_pct=80.0,
+                )
+                self.carbon_tracker.create_project(p_def)
+                self.carbon_tracker.log_pour(project_id, 120.0, 245.0, 218.0, "Cimentaciones")
+                self.carbon_tracker.log_pour(project_id, 110.0, 238.0, 212.0, "Columnas y Placas")
+                status = self.carbon_tracker.get_project_status(project_id)
+
         alerts = self.carbon_tracker.check_alerts(project_id)
         return {
             "estado_proyecto": status,
@@ -207,7 +228,7 @@ class SmartCretAssistant:
 
         # Intent 3: Carbon Budget Check
         elif any(w in query_lower for w in ["presupuesto", "carbono", "emisiones", "alerta"]):
-            proj_id = "PROJ-001"
+            proj_id = "OBRA-LIMA-01"
             res = self.tool_check_carbon_budget(proj_id)
             tool_results.append(ToolExecutionResult("tool_check_carbon_budget", {"project_id": proj_id}, res))
 

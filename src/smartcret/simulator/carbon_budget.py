@@ -67,6 +67,22 @@ class CarbonBudgetTracker:
             )
             conn.commit()
 
+    def list_projects(self) -> List[Dict[str, Any]]:
+        with sqlite3.connect(self.db_path) as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT project_id, project_name, planned_volume_m3, co2_budget_ton, cost_budget_soles FROM carbon_projects")
+            rows = cur.fetchall()
+            return [
+                {
+                    "project_id": r[0],
+                    "project_name": r[1],
+                    "planned_volume_m3": r[2],
+                    "co2_budget_ton": r[3],
+                    "cost_budget_soles": r[4],
+                }
+                for r in rows
+            ]
+
     def create_project(self, project: ProjectCarbonBudget) -> None:
         with sqlite3.connect(self.db_path) as conn:
             conn.execute(

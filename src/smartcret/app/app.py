@@ -200,9 +200,24 @@ def load_all_services():
                 warning_threshold_pct=80.0,
             )
         )
-        # Log initial pours
         carbon_tracker.log_pour("OBRA-LIMA-01", 120.0, 245.0, 218.0, "Cimentaciones")
         carbon_tracker.log_pour("OBRA-LIMA-01", 110.0, 238.0, 212.0, "Columnas y Placas")
+
+    try:
+        carbon_tracker.get_project_status("PROJ-001")
+    except ValueError:
+        carbon_tracker.create_project(
+            ProjectCarbonBudget(
+                project_id="PROJ-001",
+                project_name="Complejo Residencial Las Palmeras",
+                planned_volume_m3=300.0,
+                co2_budget_ton=68.0,
+                cost_budget_soles=65000.0,
+                warning_threshold_pct=80.0,
+            )
+        )
+        carbon_tracker.log_pour("PROJ-001", 120.0, 245.0, 218.0, "Cimentaciones")
+        carbon_tracker.log_pour("PROJ-001", 110.0, 238.0, 212.0, "Columnas y Placas")
 
     return predictor, optimizer, simulator, carbon_tracker, scenario_manager, assistant
 
